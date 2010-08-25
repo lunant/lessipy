@@ -1,0 +1,100 @@
+# vim: ft=python:
+>>> from less import *
+>>> from less.tree import *
+
+>>> Declaration(
+...     Property("text-align"),
+...     Keyword("left")
+... ).to_css()
+text-align: left;
+
+>>> definition = Declaration(
+...     Variable("@foo"),
+...     Number(1, "px")
+... )
+>>> definition.to_css()
+@foo: 1px;
+
+>>> Declaration(
+...     Property("font-size"),
+...     Add(
+...         Number(1, "px"),
+...         Number(2, "px")
+...     )
+... ).to_css()
+font-size: 3px;
+
+>>> Declaration(
+...     Property("left"),
+...     Variable("@foo")
+... ).to_css() #doctest: +ELLIPSIS
+Traceback ...
+UndefinedVariableError: ...
+
+>>> Declaration(
+...     Property("left"),
+...     Variable("@foo"),
+...     context=definition.context
+... ).to_css()
+left: 1px;
+
+>>> Declaration(
+...     Property("color"),
+...     Add(
+...         Multiply(
+...             Color("#ff0"),
+...             Number(0.5),
+...         ),
+...         Color(123, 45, 2)
+...     )
+... ).to_css()
+color: #faac02;
+
+>>> Decralation(
+...     Property("line-height"),
+...     Multiply(
+...         Number(2, "px"),
+...         Number(0.5)
+...     )
+... ).to_css()
+line-height: 1px;
+
+>>> Decralation(
+...     Property("line-height"),
+...     Multiply(
+...         Number(2, "px"),
+...         Number(0.5, "em")
+...     )
+... ).to_css() #doctest: +ELLIPSIS
+Traceback ...
+UncalculableError: ...
+
+>>> Decralation(
+...     Property("line-height"),
+...     Multiply(
+...         Number(2, "px"),
+...         Number(50, "%")
+...     )
+... ).to_css()
+line-height: 1px;
+
+>>> Decralation(
+...     Property("content"),
+...     Expression(
+...         String(" ("),
+...         Keyword("attr(href)"),
+...         String(")")
+...     )
+... ).to_css()
+content: " (" attr(href) ")";
+
+>>> Decralation(
+...     Property("border"),
+...     Expression(
+...         Number(1, "px"),
+...         Keyword("solid"),
+...         Color("#00f")
+...     )
+... ).to_css()
+border: 1px solid #00f;
+
