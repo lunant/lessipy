@@ -1,5 +1,3 @@
-
-
 class CSSable(object):
     """A abstract class for converting a less object to css."""
 

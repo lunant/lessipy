@@ -1,1 +1,2 @@
-__all__ = "Declaration", "Property", "Variable", "Color", "Number"
+__all__ = "declaration", "property", "variable", "color", "number", "css", \
+          "mixin", "expression"

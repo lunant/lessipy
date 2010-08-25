@@ -1,33 +1,62 @@
 # vim: ft=python:
 >>> from less import *
->>> from less.tree import *
+>>> from less.tree.declaration import *
+>>> from less.tree.property import *
+>>> from less.tree.variable import *
+>>> from less.tree.keyword import *
+>>> from less.tree.operator import *
 
+>>> Color.from_digit(11386570) #doctest: +SKIP
 >>> Declaration(
 ...     Property("text-align"),
 ...     Keyword("left")
 ... ).to_css()
-text-align: left;
+'text-align: left;'
 
 >>> definition = Declaration(
 ...     Variable("@foo"),
 ...     Number(1, "px")
-... )
->>> definition.to_css()
-@foo: 1px;
+... ) #doctest: +SKIP
+>>> definition.to_css() #doctest: +SKIP
+None
 
 >>> Declaration(
 ...     Property("font-size"),
-...     Add(
+...     Addition(
 ...         Number(1, "px"),
 ...         Number(2, "px")
 ...     )
 ... ).to_css()
-font-size: 3px;
+'font-size: 3px;'
+
+>>> Declaration(
+...     Property("font-size"),
+...     Addition(
+...         Addition(
+...             Number(1, "px"),
+...             Number(2, "px")
+...         ),
+...         Addition(
+...             Number(1, "px"),
+...             Number(2, "px")
+...         )
+...     )
+... ).to_css()
+'font-size: 6px;'
+
+>>> Declaration(
+...     Property("font-size"),
+...     Subtraction(
+...         Number(1, "px"),
+...         Number(2)
+...     )
+... ).to_css()
+'font-size: -1px;'
 
 >>> Declaration(
 ...     Property("left"),
 ...     Variable("@foo")
-... ).to_css() #doctest: +ELLIPSIS
+... ).to_css() #doctest: +SKIP
 Traceback ...
 UndefinedVariableError: ...
 
@@ -35,12 +64,12 @@ UndefinedVariableError: ...
 ...     Property("left"),
 ...     Variable("@foo"),
 ...     context=definition.context
-... ).to_css()
-left: 1px;
+... ).to_css() #doctest: +SKIP
+'left: 1px;'
 
 >>> Declaration(
 ...     Property("color"),
-...     Add(
+...     Addition(
 ...         Multiply(
 ...             Color("#ff0"),
 ...             Number(0.5),
@@ -48,7 +77,7 @@ left: 1px;
 ...         Color(123, 45, 2)
 ...     )
 ... ).to_css()
-color: #faac02;
+'color: #faac02;'
 
 >>> Decralation(
 ...     Property("line-height"),
@@ -57,7 +86,7 @@ color: #faac02;
 ...         Number(0.5)
 ...     )
 ... ).to_css()
-line-height: 1px;
+'line-height: 1px;'
 
 >>> Decralation(
 ...     Property("line-height"),
@@ -76,7 +105,7 @@ UncalculableError: ...
 ...         Number(50, "%")
 ...     )
 ... ).to_css()
-line-height: 1px;
+'line-height: 1px;'
 
 >>> Decralation(
 ...     Property("content"),
@@ -86,7 +115,7 @@ line-height: 1px;
 ...         String(")")
 ...     )
 ... ).to_css()
-content: " (" attr(href) ")";
+'content: " (" attr(href) ")";'
 
 >>> Decralation(
 ...     Property("border"),
@@ -96,5 +125,5 @@ content: " (" attr(href) ")";
 ...         Color("#00f")
 ...     )
 ... ).to_css()
-border: 1px solid #00f;
+'border: 1px solid #00f;'
 
