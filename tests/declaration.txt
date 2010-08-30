@@ -15,7 +15,7 @@
 
 >>> definition = Declaration(
 ...     Variable("@foo"),
-...     Number(1, "px")
+...     Measure(1, "px")
 ... ) #doctest: +SKIP
 >>> definition.to_css() #doctest: +SKIP
 None
@@ -23,8 +23,8 @@ None
 >>> Declaration(
 ...     Property("font-size"),
 ...     Addition(
-...         Number(1, "px"),
-...         Number(2, "px")
+...         Measure(Numeric(1), "px"),
+...         Measure(Numeric(2), "px")
 ...     )
 ... ).to_css()
 'font-size: 3px;'
@@ -33,12 +33,12 @@ None
 ...     Property("font-size"),
 ...     Addition(
 ...         Addition(
-...             Number(1, "px"),
-...             Number(2, "px")
+...             Measure(Numeric(1), "px"),
+...             Measure(2, "px")
 ...         ),
 ...         Addition(
-...             Number(1, "px"),
-...             Number(2, "px")
+...             Measure(1, "px"),
+...             Measure(2, "px")
 ...         )
 ...     )
 ... ).to_css()
@@ -46,12 +46,53 @@ None
 
 >>> Declaration(
 ...     Property("font-size"),
+...     Addition(
+...         Addition(
+...             Addition(
+...                 Measure(Numeric(1), "px"),
+...                 Measure(2, "px")
+...             ),
+...             Addition(
+...                 Measure(Numeric(1), "px"),
+...                 Measure(2, "px")
+...             )
+...         ),
+...         Addition(
+...             Measure(1, "px"),
+...             Measure(2, "px")
+...         )
+...     )
+... ).to_css()
+'font-size: 9px;'
+
+>>> Declaration(
+...     Property("font-size"),
 ...     Subtraction(
-...         Number(1, "px"),
-...         Number(2)
+...         Measure(1, "px"),
+...         Numeric(2)
 ...     )
 ... ).to_css()
 'font-size: -1px;'
+
+>>> Declaration(
+...     Property("font-size"),
+...     Subtraction(
+...         Numeric(2),
+...         Measure(1, "px")
+...     )
+... ).to_css()
+'font-size: 1px;'
+
+>>> Declaration(
+...     Property("font-size"),
+...     Subtraction(
+...         Measure(2, "em"),
+...         Measure(1, "px")
+...     )
+... ).to_css() #doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+ArithmeticError: ...
 
 >>> Declaration(
 ...     Property("left"),
@@ -72,7 +113,7 @@ UndefinedVariableError: ...
 ...     Addition(
 ...         Multiply(
 ...             Color("#ff0"),
-...             Number(0.5),
+...             Numeric(0.5),
 ...         ),
 ...         Color(123, 45, 2)
 ...     )
@@ -82,8 +123,8 @@ UndefinedVariableError: ...
 >>> Decralation(
 ...     Property("line-height"),
 ...     Multiply(
-...         Number(2, "px"),
-...         Number(0.5)
+...         Measure(2, "px"),
+...         Numeric(0.5)
 ...     )
 ... ).to_css()
 'line-height: 1px;'
@@ -91,8 +132,8 @@ UndefinedVariableError: ...
 >>> Decralation(
 ...     Property("line-height"),
 ...     Multiply(
-...         Number(2, "px"),
-...         Number(0.5, "em")
+...         Measure(2, "px"),
+...         Measure(0.5, "em")
 ...     )
 ... ).to_css() #doctest: +ELLIPSIS
 Traceback ...
@@ -101,8 +142,8 @@ UncalculableError: ...
 >>> Decralation(
 ...     Property("line-height"),
 ...     Multiply(
-...         Number(2, "px"),
-...         Number(50, "%")
+...         Measure(2, "px"),
+...         Measure(50, "%")
 ...     )
 ... ).to_css()
 'line-height: 1px;'
@@ -120,7 +161,7 @@ UncalculableError: ...
 >>> Decralation(
 ...     Property("border"),
 ...     Expression(
-...         Number(1, "px"),
+...         Measure(1, "px"),
 ...         Keyword("solid"),
 ...         Color("#00f")
 ...     )

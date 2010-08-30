@@ -1,5 +1,3 @@
-import functools
-import operator
 import numbers
 import less.tree.cssable
 
@@ -23,17 +21,20 @@ class Operand(less.tree.cssable.CSSable):
 
     def __numeric__(self):
         """All operands must implement `__numeric__()` function."""
-        raise NotImplementedError("`Operand` is an abstract class, use its "
-                                  "subclasses(e.g Color, Variable, Number).")
+        raise NotImplementedError("operand instance is not `Numeric`")
 
-    def __oper__(self, other, operator):
-        raise NotImplementedError(repr(operator)" is undefiend operation")
+    def basic(self, other, __method__):
+        """The basic operation method"""
+        lval = self.evaluate()
+        rval = other.evaluate()
+        return self.__class__(getattr(numeric(lval), __method__)(numeric(rval)))
 
-    __add__ = functools.partial(__oper__, operator="__add__")
-    __sub__ = functools.partial(__oper__, operator="__sub__")
-    __mul__ = functools.partial(__oper__, operator="__mul__")
-    __truediv__ = functools.partial(__oper__, operator="__truediv__")
-
+    for __method__ in "__add__", "__sub__", "__mul__", "__truediv__":
+        def __operator__(self, other, __method__=__method__):
+            return self.basic(other, __method__)
+        locals()[__method__] = __operator__
+        del __operator__
+    del __method__
 
     def __radd__(self, other):
         return self.__add__(other)
@@ -44,7 +45,7 @@ class Operand(less.tree.cssable.CSSable):
     def __rmul__(self, other):
         return self.__mul__(other)
 
-    def __rtruediv__(self, other);
+    def __rtruediv__(self, other):
         return self.__truediv__(other)
 
 
@@ -58,52 +59,57 @@ class Numeric(Operand):
 
         """
         self.val = val
-
-    def __oper__(self, other, operator):
-        if isinstance(other, Numeric):
-            return Numeric(val=getattr(numeric(self), operator)(numeric(other)))
-        return getattr(other, operator).(self)
+        self.unit = None
 
     def __numeric__(self):
         """Returns numeric value"""
         return numeric(self.val)
+
+    def to_css(self):
+        return str(self.val)
+
+    def basic(self, other, __method__):
+        """The basic operation method"""
+        lval = self.evaluate()
+        rval = other.evaluate()
+        unit = self.unify(rval)
+        result = getattr(numeric(lval), __method__)(numeric(rval))
+        if unit:
+            return Measure(Numeric(result), unit)
+        return self.__class__(Numeric(result), unit)
 
     def unify(self, other):
         if not self.unit or not other.unit:
             return self.unit if self.unit else other.unit
         elif self.unit == other.unit:
             return self.unit
-        raise NotUnifiableError("It is impossible to unify "  \
-                                + repr(self.unit) + " and " + repr(self.unit))
-
-    def to_css(self):
-        return "{val}{unit}".format(val=self.val, unit=self.unit or "")
+        raise ArithmeticError("It is impossible to operate "  \
+                              + repr(self.unit) + " and " + repr(other.unit))
 
 
-class Measure(Operand):
+class Measure(Numeric):
     """A `Numeric` and unit pair(e.g 1px, 2em, 100%, 3pt, ...)"""
 
     def __init__(self, val, unit):
         """Creates a pair.
         
-        :param val: a `Numeric` instance.
+        :param val: a `Numeric` instance or `int`.
         :param unit: an unit. (e.g px, pt, em, %, ...)
 
         """
+        if isinstance(val, numbers.Number):
+            val = Numeric(val)
         if not isinstance(val, Numeric):
             raise ValueError("val must `Numeric`, passed " + repr(val))
         self.val = val
         self.unit = unit
 
-    def __oper__(self, other, operator):
-        if isinstance(other, Numeric) or self.operable_with(other):
-            return Measure(val=getattr(numeric(self), operator)(numeric(other))
-                           unit=self.unit)
-        raise TypeError("unsupported operation : " + repr(self) + " with " \
-                        + repr(other))
+    def to_css(self):
+        return str(self.val.to_css()) + str(self.unit)
+
 
 class Color(Operand):
-    # TODO : implements this.
+    """A set of red, green, blue colorset."""
     
     def __init__(self, r, g, b):
         pass
@@ -124,8 +130,6 @@ class HexColor(Operand):
 class Operator(Operand):
     """An operator class for variable operation."""
 
-    __cached__ = None
-
     def __init__(self, lval, rval):
         for el in (lval, rval):
             if not isinstance(el, Operand):
@@ -133,58 +137,32 @@ class Operator(Operand):
                                  ", passed" + repr(el))
         self.lval, self.rval = lval, rval
 
-    def __oper__(self): 
-        raise NotImplementedError("undefined operation, `Operator` must"
-                                  " implement `__oper__()`")
-
     def to_css(self):
         return self.evaluate().to_css()
 
-    def evaluate(self):
-        if not self.__cached__:
-            if not self.is_closed():
-                raise NotOperableError(repr(self) + " is not operable")
-            lval = numeric(self.lval.evaluate())
-            rval = numeric(self.rval.evaluate())
-            self.__cached__ = self.to_operand()
-#            self.__cached__ = self.to_operand(self.__oper__(lval, rval))
-        return self.__cached__
-
-    def to_operand(self):
-        lval = self.lval.evaluate()
-        rval = self.rval.evaluate()
-        val = self.__oper__(lval, rval)
-        if lval.unit == rval.unit:
-            return Number(val, lval.unit)
-        elif lval.unit != rval.unit and lval.unit and rval.unit:
-            raise MismatchedUnitError(repr(lval.unit) + " and " \
-                                   + repr(rval.unit) + " cannot combine")
-        return Number(val, unit=lval.unit if lval.unit else rval.unit)
-        #lval = self.lval.evaluate()
-        #rval = self.rval.evaluate()
-        # 1px + 1px
-        # 1px + 1
-        # Color + Color
-
-    def is_closed(self):
-        raise NotImplementedError()
-
 
 class Addition(Operator):
-    """Do add operation."""
+    """Do add."""
 
-    __oper__ = lambda self, x, y: x + y
-
-    def is_closed(self):
-        return True
+    def evaluate(self):
+        return self.lval.evaluate() + self.rval.evaluate()
 
 
-class Subtraction(Addition):
-    """Do subtract operation."""
+class Subtraction(Operator):
+    """Do subtract."""
 
-    __oper__ = lambda self, x, y: x - y
+    def evaluate(self):
+        return self.lval.evaluate() - self.rval.evaluate()
 
-    def __init__(self, lval, rval=None):
-        if not rval:
-            lval, rval = Number(0), lval
-        super(Subtraction, self).__init__(lval, rval)
+
+class Multiply(Operator):
+    """Do multiply."""
+
+    def evaluate(self):
+        return self.lval.evaluate() * self.rval.evaluate()
+
+class Division(Operator):
+    """Do devide."""
+
+    def evaluate(self):
+        return self.lval.evaluate() / self.rval.evaluate()
