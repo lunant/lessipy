@@ -51,12 +51,12 @@ class Declaration(less.tree.cssable.CSSable):
             raise TypeError("key must be `Property` or `Variable`, `Mixin`, "
                             "passed " + repr(key))
 
-    def to_css(self):
-        return self.key.to_css() + ": " + self.value.to_css() + ";"
-
 
 class PropertyDeclaration(Declaration):
     """A subclass for declaration which is :class:`Property`."""
+
+    def to_css(self):
+        return self.key.to_css() + ": " + self.value.to_css() + ";"
 
 
 class VariableDeclaration(Declaration):

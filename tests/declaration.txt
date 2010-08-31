@@ -115,7 +115,7 @@ UndefinedVariableError: ...
 ...             Color("#ff0"),
 ...             Numeric(0.5),
 ...         ),
-...         Color(123, 45, 2)
+...         Color((123, 45, 2))
 ...     )
 ... ).to_css()
 'color: #faac02;'
