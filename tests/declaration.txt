@@ -5,6 +5,8 @@
 >>> from less.tree.variable import *
 >>> from less.tree.keyword import *
 >>> from less.tree.operator import *
+>>> from less.tree.numeric import *
+>>> from less.tree.color import *
 
 >>> Color.from_digit(11386570) #doctest: +SKIP
 >>> Declaration(
@@ -27,7 +29,7 @@ None
 ...         Measure(Numeric(2), "px")
 ...     )
 ... ).to_css()
-'font-size: 3px;'
+'font-size: 3.0px;'
 
 >>> Declaration(
 ...     Property("font-size"),
@@ -42,15 +44,18 @@ None
 ...         )
 ...     )
 ... ).to_css()
-'font-size: 6px;'
+'font-size: 6.0px;'
 
 >>> Declaration(
 ...     Property("font-size"),
 ...     Addition(
 ...         Addition(
 ...             Addition(
+...                 Addition(
+...                     Measure(Numeric(1), "px"),
+...                     Measure(2, "px")
+...                 ),
 ...                 Measure(Numeric(1), "px"),
-...                 Measure(2, "px")
 ...             ),
 ...             Addition(
 ...                 Measure(Numeric(1), "px"),
@@ -63,7 +68,7 @@ None
 ...         )
 ...     )
 ... ).to_css()
-'font-size: 9px;'
+'font-size: 10.0px;'
 
 >>> Declaration(
 ...     Property("font-size"),
@@ -72,7 +77,7 @@ None
 ...         Numeric(2)
 ...     )
 ... ).to_css()
-'font-size: -1px;'
+'font-size: -1.0px;'
 
 >>> Declaration(
 ...     Property("font-size"),
@@ -81,7 +86,7 @@ None
 ...         Measure(1, "px")
 ...     )
 ... ).to_css()
-'font-size: 1px;'
+'font-size: 1.0px;'
 
 >>> Declaration(
 ...     Property("font-size"),
@@ -106,7 +111,16 @@ UndefinedVariableError: ...
 ...     Variable("@foo"),
 ...     context=definition.context
 ... ).to_css() #doctest: +SKIP
-'left: 1px;'
+'left: 1.0px;'
+
+>>> Declaration(
+...     Property("color"),
+...     Multiply(
+...         Color("#ff0"),
+...         Numeric(0.5),
+...     ),
+... ).to_css()
+'color: rgb(127, 127, 0);'
 
 >>> Declaration(
 ...     Property("color"),
@@ -115,40 +129,52 @@ UndefinedVariableError: ...
 ...             Color("#ff0"),
 ...             Numeric(0.5),
 ...         ),
-...         Color((123, 45, 2))
+...         Color((123, 45, 2)).to_hex()
 ...     )
 ... ).to_css()
-'color: #faac02;'
+'color: rgb(250, 172, 2);'
 
->>> Decralation(
+>>> Declaration(
 ...     Property("line-height"),
 ...     Multiply(
 ...         Measure(2, "px"),
 ...         Numeric(0.5)
 ...     )
 ... ).to_css()
-'line-height: 1px;'
+'line-height: 1.0px;'
 
->>> Decralation(
+>>> Declaration(
 ...     Property("line-height"),
 ...     Multiply(
-...         Measure(2, "px"),
-...         Measure(0.5, "em")
+...         Measure(0.5, "em"),
+...         Color((123, 23, 0))
 ...     )
 ... ).to_css() #doctest: +ELLIPSIS
-Traceback ...
-UncalculableError: ...
+Traceback (most recent call last):
+    ...
+ArithmeticError: ...
 
->>> Decralation(
+>>> Declaration(
+...     Property("line-height"),
+...     Multiply(
+...         Measure(0.5, "em"),
+...         Measure(2, "px")
+...     )
+... ).to_css() #doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+ArithmeticError: ...
+
+>>> Declaration(
 ...     Property("line-height"),
 ...     Multiply(
 ...         Measure(2, "px"),
 ...         Measure(50, "%")
 ...     )
 ... ).to_css()
-'line-height: 1px;'
+'line-height: 1.0px;'
 
->>> Decralation(
+>>> Declaration(
 ...     Property("content"),
 ...     Expression(
 ...         String(" ("),
@@ -158,7 +184,7 @@ UncalculableError: ...
 ... ).to_css()
 'content: " (" attr(href) ")";'
 
->>> Decralation(
+>>> Declaration(
 ...     Property("border"),
 ...     Expression(
 ...         Measure(1, "px"),
@@ -166,5 +192,5 @@ UncalculableError: ...
 ...         Color("#00f")
 ...     )
 ... ).to_css()
-'border: 1px solid #00f;'
+'border: 1.0px solid #00f;'
 
