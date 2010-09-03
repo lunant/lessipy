@@ -1,4 +1,4 @@
-import less.tree.expression
+import lessipy.tree.expression
 
 
 class Variable(object):

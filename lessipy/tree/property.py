@@ -1,5 +1,5 @@
-import less.tree.css
+import lessipy.tree.css
 
 
-class Property(less.tree.css.CSS):
+class Property(lessipy.tree.css.CSS):
     """A css standard property."""

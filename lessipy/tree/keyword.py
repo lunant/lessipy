@@ -1,4 +1,4 @@
-import less.tree.css
+import lessipy.tree.css
 
-class Keyword(less.tree.css.CSS):
+class Keyword(lessipy.tree.css.CSS):
     """A pre-defined css keywords. (e.g left, black, none  ...) """

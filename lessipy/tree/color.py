@@ -1,6 +1,6 @@
 import PIL.ImageColor
-from less.tree.operator import Operand
-from less.tree.numeric import *
+from lessipy.tree.operator import Operand
+from lessipy.tree.numeric import *
 
 
 def to_hexcode(cls):

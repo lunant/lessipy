@@ -1,7 +1,7 @@
-import less.tree.cssable
+import lessipy.tree.cssable
 
 
-class Operand(less.tree.cssable.CSSable):
+class Operand(lessipy.tree.cssable.CSSable):
     """An abstract class for all of calculatable(operable) numerics."""
 
     def evaluate(self):

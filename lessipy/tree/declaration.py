@@ -1,10 +1,10 @@
-import less.tree.cssable
-import less.tree.property
-import less.tree.variable
-import less.tree.mixin
+import lessipy.tree.cssable
+import lessipy.tree.property
+import lessipy.tree.variable
+import lessipy.tree.mixin
 
 
-class Declaration(less.tree.cssable.CSSable):
+class Declaration(lessipy.tree.cssable.CSSable):
     """A declaration which has a key and a value.
 
     For example, you able to use like this::
@@ -41,9 +41,9 @@ class Declaration(less.tree.cssable.CSSable):
             return object.__new__(cls)
             
         __map__ = {
-            less.tree.property.Property: PropertyDeclaration,
-            less.tree.variable.Variable: VariableDeclaration,
-            less.tree.mixin.Mixin: MixinDeclaration,
+            lessipy.tree.property.Property: PropertyDeclaration,
+            lessipy.tree.variable.Variable: VariableDeclaration,
+            lessipy.tree.mixin.Mixin: MixinDeclaration,
         }
         try:
             return __map__[key.__class__](key, value)

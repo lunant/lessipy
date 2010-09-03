@@ -1,7 +1,7 @@
-import less.tree.cssable
+import lessipy.tree.cssable
 
 
-class CSS(less.tree.cssable.CSSable):
+class CSS(lessipy.tree.cssable.CSSable):
 
     def __init__(self, name):
         """Make a new css instance.

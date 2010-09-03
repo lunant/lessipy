@@ -1,5 +1,5 @@
-import less.tree.cssable
+import lessipy.tree.cssable
 
 
-class Mixin(less.tree.cssable.CSSable):
+class Mixin(lessipy.tree.cssable.CSSable):
     """A mixin object"""

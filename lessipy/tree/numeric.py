@@ -1,5 +1,5 @@
 import numbers
-from less.tree.operator import Operand
+from lessipy.tree.operator import Operand
 
 
 def numeric(cls):

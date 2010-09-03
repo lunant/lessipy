@@ -1,12 +1,12 @@
 # vim: ft=python:
->>> from less import *
->>> from less.tree.declaration import *
->>> from less.tree.property import *
->>> from less.tree.variable import *
->>> from less.tree.keyword import *
->>> from less.tree.operator import *
->>> from less.tree.numeric import *
->>> from less.tree.color import *
+>>> from lessipy import *
+>>> from lessipy.tree.declaration import *
+>>> from lessipy.tree.property import *
+>>> from lessipy.tree.variable import *
+>>> from lessipy.tree.keyword import *
+>>> from lessipy.tree.operator import *
+>>> from lessipy.tree.numeric import *
+>>> from lessipy.tree.color import *
 
 >>> Color.from_digit(11386570) #doctest: +SKIP
 >>> Declaration(
