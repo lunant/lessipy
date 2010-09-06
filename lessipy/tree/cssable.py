@@ -12,3 +12,13 @@ class CSSable(object):
     def to_css(self):
         """Performs converting a object to printable string."""
         raise NotImplementedError("You must implement to_css method")
+
+
+class String(CSSable):
+    """Just a string object."""
+
+    def __init__(self, string):
+        self.val = string
+
+    def to_css(self):
+        return '"' + self.val + '"'

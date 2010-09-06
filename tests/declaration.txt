@@ -7,6 +7,8 @@
 >>> from lessipy.tree.operator import *
 >>> from lessipy.tree.numeric import *
 >>> from lessipy.tree.color import *
+>>> from lessipy.tree.expression import *
+>>> from lessipy.tree.cssable import String
 
 >>> Color.from_digit(11386570) #doctest: +SKIP
 >>> Declaration(
@@ -192,5 +194,5 @@ ArithmeticError: ...
 ...         Color("#00f")
 ...     )
 ... ).to_css()
-'border: 1.0px solid #00f;'
+'border: 1px solid #0000FF;'
 

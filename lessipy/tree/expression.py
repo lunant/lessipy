@@ -13,6 +13,6 @@ class Expression(lessipy.tree.cssable.CSSable):
 
     def to_css(self):
         result = ""
-        for el in elements:
+        for el in self.elements:
             result = result + " " + el.to_css()
-        return result.lstrtip()
+        return result.lstrip()
