@@ -6,7 +6,7 @@ class CSS(lessipy.tree.cssable.CSSable):
     def __init__(self, name):
         """Make a new css instance.
         
-        :param name: a standard css pre-defined keywords.
+        :param name: a standard css pre-defined namewords.
 
 
         """
@@ -16,4 +16,7 @@ class CSS(lessipy.tree.cssable.CSSable):
         self.name = name
 
     def to_css(self):
+        return self.name
+
+    def evaluate(self, context=None):
         return self.name

@@ -1,11 +1,16 @@
 import lessipy.tree.cssable
+import lessipy.tree.selector
 import lessipy.tree.property
 import lessipy.tree.variable
 import lessipy.tree.mixin
+import lessipy.tree.ruleset
+
+
+__universal__ = lessipy.tree.ruleset.__universal__
 
 
 class Declaration(lessipy.tree.cssable.CSSable):
-    """A declaration which has a key and a value.
+    """A declaration which has a key-value pair.
 
     For example, you able to use like this::
 
@@ -39,11 +44,10 @@ class Declaration(lessipy.tree.cssable.CSSable):
         """
         if cls is not Declaration:
             return object.__new__(cls)
-            
         __map__ = {
             lessipy.tree.property.Property: PropertyDeclaration,
             lessipy.tree.variable.Variable: VariableDeclaration,
-            lessipy.tree.mixin.Mixin: MixinDeclaration,
+            lessipy.tree.selector.Selector: lessipy.tree.ruleset.Ruleset,
         }
         try:
             return __map__[key.__class__](key, value)
@@ -55,16 +59,24 @@ class Declaration(lessipy.tree.cssable.CSSable):
 class PropertyDeclaration(Declaration):
     """A subclass for declaration which is :class:`Property`."""
 
-    def to_css(self):
-        return self.key.to_css() + ": " + self.value.to_css() + ";"
+    def to_css(self, context=__universal__):
+        key = self.key.to_css()
+        try: 
+            value = self.value.evaluate(context)
+        except AttributeError:
+            value = self.value.to_css()
+        except TypeError:
+            value = self.value.to_css()
+        return key + ": " + value + ";"
 
 
 class VariableDeclaration(Declaration):
     """A subclass for declaration which is :class:`Variable`."""
 
-    def to_css(self):
+    def to_css(self, context=__universal__):
         return None
 
 
 class MixinDeclaration(Declaration):
     """A subclass for declaration which is :class:`Mixin`."""
+

@@ -10,7 +10,6 @@
 >>> from lessipy.tree.expression import *
 >>> from lessipy.tree.cssable import String
 
->>> Color.from_digit(11386570) #doctest: +SKIP
 >>> Declaration(
 ...     Property("text-align"),
 ...     Keyword("left")

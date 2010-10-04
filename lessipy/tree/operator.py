@@ -4,7 +4,7 @@ import lessipy.tree.cssable
 class Operand(lessipy.tree.cssable.CSSable):
     """An abstract class for all of calculatable(operable) numerics."""
 
-    def evaluate(self):
+    def evaluate(self, context=None):
         """All operands must be evaluatable."""
         return self
 
