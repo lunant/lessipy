@@ -21,7 +21,10 @@ class Numeric(Operand):
         :param val: a numeric value. (e.g 1, 1.0, 0x22)
 
         """
-        self.val = val
+        try:
+            self.val = int(val)
+        except ValueError:
+            self.val = float(val)
         self.unit = None
 
     def __numeric__(self):

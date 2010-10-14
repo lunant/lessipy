@@ -10,8 +10,9 @@ class CSS(lessipy.tree.cssable.CSSable):
 
 
         """
+        name = str(name)
         if name.__class__ != str:
-            raise ValueError("`Property` or `Keyword` name must be str,"
+            raise ValueError("`Property` or `Keyword` name must be str, "
                              "passed " + repr(name))
         self.name = name
 

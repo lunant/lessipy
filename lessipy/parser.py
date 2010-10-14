@@ -1,18 +1,23 @@
 from lepl import *
-with TraceVariables():
-    ident = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]+")
-    spaces = Space(" \t\r\n")[1:]
-    comment = Regexp(r"/\*.+?\*/") | ("//" / AnyBut("\n") / Optional("\n"))
+import lessipy.tree.css
+import lessipy.tree.numeric
 
-    number = Integer() | Float()
+with TraceVariables():
+    spaces = Space(" \t\r\n")
+    comment = Regexp(r"/\*.+?\*/") | ("//" / AnyBut("\n") / Optional("\n"))
+    css_attr = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]+") >> lessipy.tree.css.CSS
+
+    number = (Integer() | Float()) >> lessipy.tree.numeric.Numeric
     unit = Or("px", "em", "pc", "%", "ex", "in", "deg", "s", "pt", "cm", "mm")
-    dimension = number / unit
+    dimension = number & ~Space()[:] & unit
     string_literal = String() | String(quote="'")
     url_string = Regexp(r"https?://[^)]+")
-    url = Literal("url") / "(" / (string_literal | url_string) / ")"
+    url = Literal("url") & "(" & ~Space()[:] & (string_literal | url_string) & \
+          ~Space()[:] & ")"
     hex_color = Regexp(r"#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})")
     expression = Delayed()
-    arguments = "(" / expression / ("," / expression)[:] / ")"
+    arguments = "(" & ~Space()[:] & expression & ~Space()[:] & \
+                ("," & ~Space()[:] & expression)[:] & ~Space()[:] & ")"
     rgb_color = "rgb" / arguments
     rgba_color = "rgba" / arguments
     hsl_color = "hsl" / arguments
@@ -21,36 +26,42 @@ with TraceVariables():
     alpha = "alpha" / arguments
     term = number | dimension | string_literal | url | color | alpha
     operator = Or("+", "-", "*", "/")
-    operation = expression / operator / expression
-    variable = Regexp(r"@\w+")
-    expression += term | operation | variable | ("(" / expression / ")")
+    operation = expression & ~Space()[:] & operator & ~Space()[:] & expression
+    variable = Regexp(r"@[A-Za-z_-][A-Za-z0-9_-]+")
+    expression += term | operation | variable | ("(" & ~Space()[:] & \
+                  expression & ~Space()[:] & ")")
 
     node_selector = Delayed()
     universal_selector = Literal("*")
-    element_selector = ident
+    element_selector = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]+")
     type_selector = universal_selector | element_selector
-    id_selector = "#" & ident
-    cls_selector = "." & ident
-    pseudoclass_selector = ":" & ident
+    id_selector = Regexp(r"#[A-Za-z_-][A-Za-z0-9_-]+")
+    cls_selector = Regexp(r"\.[A-Za-z_-][A-Za-z0-9_-]+")
+    psuedoclass = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]+")
+    pseudoclass_selector = Drop(":") & psuedoclass
     property = Word()
-    property_value = expression | ident
-    property_decl = property / ":" / property_value
+    property_value = expression | css_attr
+    property_decl = property & ~Space()[:] & Drop(":") & ~Space()[:] & \
+                    property_value
     attr_operator = Or("=", "~=", "|=")
-    attr_pridicate = property / (attr_operator / property_value)[:1]
-    attr_selector = "[" / attr_pridicate / "]"
+    attr_pridicate = property & (attr_operator & property_value)[:1]
+    attr_selector = "[" & attr_pridicate & "]"
     node_selector += type_selector[:1] & (id_selector | cls_selector |
                                         attr_selector | pseudoclass_selector)[:]
-    child_selector = (Literals(">", "+") | Regexp(r"\s+")) / node_selector
-    selector = node_selector & child_selector[:]
-    selectors = selector / ("," / selector)[:]
+    child_selector = ~Space()[:] & (Literals(">", "+", " ")) & ~Space()[:] & \
+                     node_selector & ~Space()[:]
+    selector = node_selector & ~Space()[:] & child_selector[:]
+    selectors = selector & ~Space()[:] & ("," & ~Space()[:] & selector)[:]
 
     ruleset = Delayed()
-    variable_decl = variable / ":" / expression
-    declaration = (variable_decl | property_decl) / ";"
+    variable_decl = variable & ~Space()[:] & Drop(":") & ~Space()[:] & \
+                    (expression | css_attr)
+    declaration = (variable_decl | property_decl) & ~Space()[:] & Drop(";")
     rule = ruleset | declaration
 
-    ruleset += selectors / "{" & (spaces[:1] / rule / spaces[:1])[:] & "}"
+    ruleset += ~Space()[:] & selectors & ~Space()[:] & Drop("{") & \
+               (~spaces[:] & rule & ~spaces[:])[:] & Drop("}")
 
-    import_ = "@import" // (url | string_literal) / ";"
+    import_ = "@import" & ~Space()[:] & (url | string_literal) & Drop(";")
     primary = import_ | declaration | ruleset | comment
-    stylesheet = spaces[:1] / (primary / spaces[:1])[:]
+    stylesheet = ~spaces[:1] & (primary & ~spaces[:1])[:]
