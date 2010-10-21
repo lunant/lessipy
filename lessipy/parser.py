@@ -1,6 +1,7 @@
 from lepl import *
 import lessipy.tree.css
 import lessipy.tree.numeric
+import lessipy.tree.color
 
 with TraceVariables():
     spaces = Space(" \t\r\n")
@@ -9,17 +10,24 @@ with TraceVariables():
 
     number = (Integer() | Float()) >> lessipy.tree.numeric.Numeric
     unit = Or("px", "em", "pc", "%", "ex", "in", "deg", "s", "pt", "cm", "mm")
-    dimension = number & ~Space()[:] & unit
+    dimension = (number & ~Space()[:] & unit) > lessipy.tree.numeric.Measure
     string_literal = String() | String(quote="'")
     url_string = Regexp(r"https?://[^)]+")
     url = Literal("url") & "(" & ~Space()[:] & (string_literal | url_string) & \
           ~Space()[:] & ")"
-    hex_color = Regexp(r"#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})")
+    hex_color = Regexp(r"#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}") >> \
+                    lessipy.tree.color.HexColor
     expression = Delayed()
-    arguments = "(" & ~Space()[:] & expression & ~Space()[:] & \
-                ("," & ~Space()[:] & expression)[:] & ~Space()[:] & ")"
-    rgb_color = "rgb" / arguments
-    rgba_color = "rgba" / arguments
+    arguments = Drop("(") & ~Space()[:] & expression & ~Space()[:] & \
+                (Drop(",") & ~Space()[:] & expression)[:] & ~Space()[:] & \
+                Drop(")")
+    rgb_color = Drop("rgb") / Drop("(") & ~Space()[:] & Integer() & \
+                ~Space()[:] & (Drop(",") & ~Space()[:] & Integer())[2:2] & \
+                ~Space()[:] & Drop(")") > lessipy.tree.color.RGBColor
+    rgba_color = Drop("rgba") / Drop("(") & ~Space()[:] & Integer() & \
+                ~Space()[:] & (Drop(",") & ~Space()[:] & Integer())[2:2] & \
+                ~Space()[:] & (Drop(",") & ~Space()[:] & Float()) & \
+                Drop(")") > lessipy.tree.color.RGBAColor
     hsl_color = "hsl" / arguments
     hsla_color = "hsla" / arguments
     color = hex_color | rgb_color | rgba_color | hsl_color | hsla_color

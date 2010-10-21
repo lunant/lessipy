@@ -55,16 +55,14 @@ class RGBColor(Color):
         :param args: a digit number(0-255) set.
         
         """
-        for color in colorset:
-            if not isinstance(color, int):
-                raise ValueError("colorset must be an `int` instance, passed " \
-                                 + repr(color))
-            if not(0 <= color <= 255):
+        print repr(colorset)
+        for color in range(0, 2):
+            if not(0 <= int(colorset[color]) <= 255):
                 raise ValueError("colorset elements must be in valid range(0 "
                                  "to 255), passed " + repr(color))
-        self.red = colorset[0]
-        self.green = colorset[1]
-        self.blue = colorset[2]
+        self.red = int(colorset[0])
+        self.green = int(colorset[1])
+        self.blue = int(colorset[2])
 
     def to_hex(self):
         return HexColor(to_hexcode(self))
@@ -83,14 +81,11 @@ class RGBAColor(RGBColor):
         :param args: three digit numbers(0-255) and one float number(0-1).
 
         """
-        super(RGBAColor, self).__init(self, *colorset)
-        if not isinstance(colorset[3], float):
-            raise ValueError("an alpha must be a `float` instance, passed " \
-                             + repr(colorset[3]))
-        if not(0 <= colorset[3] <= 1):
+        super(RGBAColor, self).__init__(colorset)
+        if not(0 <= float(colorset[3]) <= 1):
             raise ValueError("an alpha must be in valid range(0 to 1.0), " 
-                             "passed " + repr(colorset[3]))
-        self.alpha = colorset[3]
+                             "passed " + repr(int(colorset[3])))
+        self.alpha = float(colorset[3])
 
     def to_css(self):
         return "rgb({r}, {g}, {b}, {a})".format(r=self.red, g=self.green,

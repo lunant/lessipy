@@ -61,17 +61,17 @@ class Numeric(Operand):
 class Measure(Numeric):
     """A `Numeric` and unit pair(e.g 1px, 2em, 100%, 3pt, ...)"""
 
-    def __init__(self, val, unit):
+    def __init__(self, args):
         """Creates a pair.
         
         :param val: a `Numeric` instance or `int`.
         :param unit: an unit. (e.g px, pt, em, %, ...)
 
         """
+        val = args[0]
+        unit = args[1]
         if isinstance(val, numbers.Number):
             val = Numeric(val)
-        if not isinstance(val, Numeric):
-            raise ValueError("val must `Numeric`, passed " + repr(val))
         if unit == '%':
             self.val = val.val / 100.0
             self.unit = None

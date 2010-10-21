@@ -9,7 +9,7 @@ import lessipy.tree.ruleset
 __universal__ = lessipy.tree.ruleset.__universal__
 
 
-class Declaration(lessipy.tree.cssable.CSSable):
+class Declaration(lessipy.tree.ruleset.Rule, tuple):
     """A declaration which has a key-value pair.
 
     For example, you able to use like this::
@@ -26,34 +26,16 @@ class Declaration(lessipy.tree.cssable.CSSable):
         
     """
 
-    def __init__(self, key, value):
-        self.key = key
-        self.value = value
-
     def __new__(cls, key, value):
-        """Before a declaration is initialized, the method catch up event and
-        reassign to pre-defined subclasses.
+        return tuple.__new__(cls, (key, value))
 
-        :param key: a :class:`Property`/:class:`Variable`/:class:`Mixin`
-                    instance.
-        :param value: a :class:`Expression` instance.
+    @property
+    def key(self):
+        return self[0]
 
-        If key is not a valid instance, it will raise :class:`TypeError`.
-
-
-        """
-        if cls is not Declaration:
-            return object.__new__(cls)
-        __map__ = {
-            lessipy.tree.property.Property: PropertyDeclaration,
-            lessipy.tree.variable.Variable: VariableDeclaration,
-            lessipy.tree.selector.Selector: lessipy.tree.ruleset.Ruleset,
-        }
-        try:
-            return __map__[key.__class__](key, value)
-        except KeyError:
-            raise TypeError("key must be `Property` or `Variable`, `Mixin`, "
-                            "passed " + repr(key))
+    @property
+    def value(self):
+        return self[1]
 
 
 class PropertyDeclaration(Declaration):
@@ -75,8 +57,4 @@ class VariableDeclaration(Declaration):
 
     def to_css(self, context=__universal__):
         return None
-
-
-class MixinDeclaration(Declaration):
-    """A subclass for declaration which is :class:`Mixin`."""
 
