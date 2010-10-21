@@ -1,7 +1,6 @@
-import lessipy.tree.cssable
 
 
-class Selector(lessipy.tree.cssable.CSSable):
+class Selector(lessipy.tree.node.Node):
     """A css selector."""
 
     def __init__(self, key):
@@ -14,9 +13,6 @@ class Selector(lessipy.tree.cssable.CSSable):
         if isinstance(selector, ChildSelector):
             return self.__gt__(selector)
         return Selector(self.key + " " + selector.key)
-
-    def to_css(self):
-        return str(self.key)
 
 
 class ChildSelector(Selector):

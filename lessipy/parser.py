@@ -6,7 +6,7 @@ import lessipy.tree.color
 with TraceVariables():
     spaces = Space(" \t\r\n")
     comment = Regexp(r"/\*.+?\*/") | ("//" / AnyBut("\n") / Optional("\n"))
-    css_attr = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]+") >> lessipy.tree.css.CSS
+    keyword = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]+") >> lessipy.tree.css.CSS
 
     number = (Integer() | Float()) >> lessipy.tree.numeric.Numeric
     unit = Or("px", "em", "pc", "%", "ex", "in", "deg", "s", "pt", "cm", "mm")
@@ -32,13 +32,13 @@ with TraceVariables():
     hsla_color = "hsla" / arguments
     color = hex_color | rgb_color | rgba_color | hsl_color | hsla_color
     alpha = "alpha" / arguments
-    term = number | dimension | string_literal | url | color | alpha
+    term = number | dimension | string_literal | url | color | alpha | keyword
     operator = Or("+", "-", "*", "/")
     operation = expression & ~Space()[:] & operator & ~Space()[:] & expression
     variable = Regexp(r"@[A-Za-z_-][A-Za-z0-9_-]+")
-    expression += term | operation | variable | ("(" & ~Space()[:] & \
-                  expression & ~Space()[:] & ")")
-
+    expression += (term | operation | variable \
+                  | ("(" & ~Space()[:] & expression & ~Space()[:] & ")")) & \
+                  (Drop(spaces)[1:] & expression)[:]
     node_selector = Delayed()
     universal_selector = Literal("*")
     element_selector = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]+")
@@ -48,7 +48,7 @@ with TraceVariables():
     psuedoclass = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]+")
     pseudoclass_selector = Drop(":") & psuedoclass
     property = Word()
-    property_value = expression | css_attr
+    property_value = expression
     property_decl = property & ~Space()[:] & Drop(":") & ~Space()[:] & \
                     property_value
     attr_operator = Or("=", "~=", "|=")
@@ -63,7 +63,7 @@ with TraceVariables():
 
     ruleset = Delayed()
     variable_decl = variable & ~Space()[:] & Drop(":") & ~Space()[:] & \
-                    (expression | css_attr)
+                    expression
     declaration = (variable_decl | property_decl) & ~Space()[:] & Drop(";")
     rule = ruleset | declaration
 

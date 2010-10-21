@@ -10,9 +10,9 @@
 >>> from lessipy.tree.expression import *
 >>> from lessipy.tree.cssable import String
 
->>> Declaration(
-...     Property("text-align"),
-...     Keyword("left")
+>>> PropertyDeclaration(
+...     key=Property("text-align"),
+...     value=Keyword("left")
 ... ).to_css()
 'text-align: left;'
 

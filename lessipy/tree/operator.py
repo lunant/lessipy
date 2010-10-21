@@ -1,7 +1,7 @@
-import lessipy.tree.cssable
+import lessipy.tree.node
 
 
-class Operand(lessipy.tree.cssable.CSSable):
+class Operand(lessipy.tree.node.Node):
     """An abstract class for all of calculatable(operable) numerics."""
 
     def evaluate(self, context=None):
@@ -47,9 +47,6 @@ class Operator(Operand):
                 raise ValueError("lval and rval should be `Operand` instance"
                                  ", passed" + repr(el))
         self.lval, self.rval = lval, rval
-
-    def to_css(self):
-        return self.evaluate().to_css()
 
 
 class Addition(Operator):

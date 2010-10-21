@@ -31,9 +31,6 @@ class Numeric(Operand):
         """Returns numeric value"""
         return numeric(self.val)
 
-    def to_css(self):
-        return str(self.val)
-
     def unify(self, other):
         """Unifies `Numeric` or `Measure` unit."""
         try:
@@ -79,5 +76,3 @@ class Measure(Numeric):
             self.val = val
             self.unit = unit
 
-    def to_css(self):
-        return "{val}{unit}".format(val=self.val.to_css(), unit=self.unit)

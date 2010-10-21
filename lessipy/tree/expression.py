@@ -1,18 +1,9 @@
-import lessipy.tree.cssable
+import lessipy.tree.node
 
 
-class Expression(lessipy.tree.cssable.CSSable):
+class Expression(lessipy.tree.node.Node):
     """A css value expression. It just chaning elements."""
 
     def __init__(self, *elements):
-        for el in elements:
-            if not isinstance(el, lessipy.tree.cssable.CSSable):
-               raise ValueError("only `CSSable` instance is allowed,"
-                                "passed " + repr(el))
         self.elements = elements
 
-    def to_css(self):
-        result = ""
-        for el in self.elements:
-            result = result + " " + el.to_css()
-        return result.lstrip()

@@ -1,7 +1,3 @@
-import lessipy.tree.cssable
-import lessipy.tree.declaration
-
-
 #
 # + Rule # -> ruleset element
 #   + Declar  # -> key/value
@@ -32,25 +28,19 @@ class Environment(object):
             if isinstance(rule, tuple):
                 yield rule
 
-    def to_css(self):
-        return "\n".join(rule.to_css(self) for rule in self)
 
-
-class Rule(lessipy.tree.cssable.CSSable):
+class Rule(object):
     """A rule."""
 
 
-class UniversalRuleset(Environment, lessipy.tree.cssable.CSSable):
+class UniversalRuleset(Environment):
     """A highest ruleset."""
 
     def __init__(self, *rules):
         self.rules = rules
 
-    def to_css_selector(self):
-        return ""
 
-
-class Ruleset(Environment, lessipy.tree.cssable.CSSable):
+class Ruleset(Environment):
     """A set of rules."""
 
     def __init__(self, selector, *rules):
@@ -61,14 +51,6 @@ class Ruleset(Environment, lessipy.tree.cssable.CSSable):
         self.parent = parent
         super(Ruleset, self).__init__(rules)
 
-    @property
-    def full_selector(self):
-        return self.parent.selector + self.selector
-
-    def to_css(self):
-        selector = self.full_selector()
-        body = Environment.to_css(self)
-
 
 # Variable("@name"), Mixin(".name"), Property("text-align")
 """
@@ -78,7 +60,7 @@ class Ruleset(Environment, lessipy.tree.cssable.CSSable):
     a: b;
 }
 
-    Ruleset(Selector("fuck"), parent=__universal__, [
+    Ruleset(Selector("fuck"), parent, [
         Declaration(Property("text-align"), Keyword("left")]),
         Declaration(Variable("@height"), Measure("100", "%")),
         Declaration(Property("line-height"), Variable("@height")),
