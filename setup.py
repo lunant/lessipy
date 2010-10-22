@@ -11,7 +11,7 @@ except ImportError:
 setup(
     name="Lessipy",
     version="0.0.1",
-    license="public",
+    license="MIT",
     author="xymz",
     author_email="",
     description="",
