@@ -13,18 +13,19 @@ setup(
     version="0.0.1",
     license="MIT",
     author="xymz",
-    author_email="",
-    description="",
+    author_email="xym@lunant.net",
+    description="LESS python implementation",
     long_description=__doc__,
     packages=["lessipy"],
     platforms="any",
     install_requires=[
-        "PIL"
+        "PIL", "lepl"
     ],
     test_suite="test",
     classifiers=[
         "Development Status :: 1 - Planning",
-        "Environment :: Console"
+        "Environment :: Console",
+        "License :: OSI Approved :: MIT License"
     ]
 )
 
