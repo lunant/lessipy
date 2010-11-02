@@ -1,5 +1,5 @@
 import numbers
-from lessipy.tree.operator import Operand
+from lessipy.tree.operand import Operand
 
 
 def numeric(cls):
@@ -32,7 +32,7 @@ class Numeric(Operand):
         return numeric(self.val)
 
     def unify(self, other):
-        """Unifies `Numeric` or `Measure` unit."""
+        """Unifies `Numeric` or `Dimension` unit."""
         try:
             if not self.unit or not other.unit:
                 return self.unit if self.unit else other.unit
@@ -51,28 +51,5 @@ class Numeric(Operand):
         unit = self.unify(rval)
         result = getattr(float(numeric(lval)), __method__)(float(numeric(rval)))
         if unit:
-            return Measure(Numeric(result), unit)
+            return Dimension(Numeric(result), unit)
         return self.__class__(Numeric(result), unit)
-
-
-class Measure(Numeric):
-    """A `Numeric` and unit pair(e.g 1px, 2em, 100%, 3pt, ...)"""
-
-    def __init__(self, args):
-        """Creates a pair.
-        
-        :param val: a `Numeric` instance or `int`.
-        :param unit: an unit. (e.g px, pt, em, %, ...)
-
-        """
-        val = args[0]
-        unit = args[1]
-        if isinstance(val, numbers.Number):
-            val = Numeric(val)
-        if unit == '%':
-            self.val = val.val / 100.0
-            self.unit = None
-        else:
-            self.val = val
-            self.unit = unit
-

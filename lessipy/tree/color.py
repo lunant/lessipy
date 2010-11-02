@@ -1,5 +1,5 @@
 import PIL.ImageColor
-from lessipy.tree.operator import Operand
+from lessipy.tree.operand import Operand
 from lessipy.tree.numeric import *
 
 
@@ -30,9 +30,9 @@ class Color(Operand):
         colorset = []
         if other.__class__ is Numeric:
             for k in range(0, 3):
-                colorset.insert(k, int(getattr(getattr(self, rgb[k]) \
-                                                             * self.alpha, 
-                                               __method__)(other.val)))
+                colorset.insert(k, int(getattr(
+                    getattr(self, rgb[k]) * self.alpha, __method__)(other.val)
+                ))
             return RGBColor(colorset)
         if not isinstance(other, Color):
             raise ArithmeticError("`Color` instance is able to operate with `"

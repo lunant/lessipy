@@ -4,7 +4,7 @@ import lessipy.tree.node
 class Operand(lessipy.tree.node.Node):
     """An abstract class for all of calculatable(operable) numerics."""
 
-    def evaluate(self, context=None):
+    def evaluate(self):
         """All operands must be evaluatable."""
         return self
 
@@ -63,7 +63,7 @@ class Subtraction(Operator):
         return self.lval.evaluate() - self.rval.evaluate()
 
 
-class Multiply(Operator):
+class Multiplication(Operator):
     """Do multiply."""
 
     def evaluate(self):
