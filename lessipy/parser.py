@@ -1,16 +1,19 @@
 from lepl import *
-import lessipy.tree.css
-import lessipy.tree.numeric
+import lessipy.tree.comment
+import lessipy.tree.keyword
+import lessipy.tree.dimension
 import lessipy.tree.color
 
 with TraceVariables():
     spaces = Space(" \t\r\n")
-    comment = Regexp(r"/\*.+?\*/") | ("//" / AnyBut("\n") / Optional("\n"))
-    keyword = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]+") >> lessipy.tree.css.CSS
+    comment = Regexp(r"/\*.+?\*/") | Regexp(r"\/\/.+") >> \
+                  lessipy.tree.comment.Comment
+    keyword = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]+") >> \
+                  lessipy.tree.keyword.Keyword
 
-    number = (Integer() | Float()) >> lessipy.tree.numeric.Numeric
+    number = (Integer() | Float()) >> float
     unit = Or("px", "em", "pc", "%", "ex", "in", "deg", "s", "pt", "cm", "mm")
-    dimension = (number & ~Space()[:] & unit) > lessipy.tree.numeric.Measure
+    dimension = (number & ~Space()[:] & unit) > lessipy.tree.dimension.Dimension
     string_literal = String() | String(quote="'")
     url_string = Regexp(r"https?://[^)]+")
     url = Literal("url") & "(" & ~Space()[:] & (string_literal | url_string) & \
@@ -31,8 +34,11 @@ with TraceVariables():
     hsl_color = "hsl" / arguments
     hsla_color = "hsla" / arguments
     color = hex_color | rgb_color | rgba_color | hsl_color | hsla_color
-    alpha = "alpha" / arguments
-    term = number | dimension | string_literal | url | color | alpha | keyword
+    alpha = Drop("alpha") & ~Space()[:] & Drop("(") & ~Space()[:] & \
+                number & ~Space()[:] & Drop(")")
+    term = Delayed()
+    term += (number | dimension | string_literal | url | color | alpha |
+            keyword)
     operator = Or("+", "-", "*", "/")
     operation = expression & ~Space()[:] & operator & ~Space()[:] & expression
     variable = Regexp(r"@[A-Za-z_-][A-Za-z0-9_-]+")
