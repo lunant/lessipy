@@ -3,6 +3,16 @@ import lessipy.tree.comment
 import lessipy.tree.keyword
 import lessipy.tree.dimension
 import lessipy.tree.color
+import lessipy.tree.numeric
+import lessipy.tree.operation
+import lessipy.tree.property
+import lessipy.tree.string
+import lessipy.tree.expression
+import lessipy.tree.declaration
+import lessipy.tree.rule
+import lessipy.tree.variable
+import lessipy.tree.ruleset
+import lessipy.tree.selector
 
 with TraceVariables():
     spaces = Space(" \t\r\n")
@@ -11,10 +21,10 @@ with TraceVariables():
     keyword = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]+") >> \
                   lessipy.tree.keyword.Keyword
 
-    number = (Integer() | Float()) >> float
+    number = (Integer() | Float()) >> lessipy.tree.numeric.Numeric
     unit = Or("px", "em", "pc", "%", "ex", "in", "deg", "s", "pt", "cm", "mm")
     dimension = (number & ~Space()[:] & unit) > lessipy.tree.dimension.Dimension
-    string_literal = String() | String(quote="'")
+    string_literal = String() | String(quote="'") >> lessipy.tree.string.String
     url_string = Regexp(r"https?://[^)]+")
     url = Literal("url") & "(" & ~Space()[:] & (string_literal | url_string) & \
           ~Space()[:] & ")"
@@ -40,11 +50,14 @@ with TraceVariables():
     term += (number | dimension | string_literal | url | color | alpha |
             keyword)
     operator = Or("+", "-", "*", "/")
-    operation = expression & ~Space()[:] & operator & ~Space()[:] & expression
-    variable = Regexp(r"@[A-Za-z_-][A-Za-z0-9_-]+")
+    operation = expression & ~Space()[:] & operator & ~Space()[:] & \
+                expression > lessipy.tree.operation.Operation
+    variable = Regexp(r"@[A-Za-z_-][A-Za-z0-9_-]+") \
+                   >> lessipy.tree.variable.Variable
     expression += (term | operation | variable \
                   | ("(" & ~Space()[:] & expression & ~Space()[:] & ")")) & \
-                  (Drop(spaces)[1:] & expression)[:]
+                  (Drop(spaces)[1:] & expression)[:] \
+                      > lessipy.tree.expression.Expression
     node_selector = Delayed()
     universal_selector = Literal("*")
     element_selector = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]+")
@@ -53,28 +66,28 @@ with TraceVariables():
     cls_selector = Regexp(r"\.[A-Za-z_-][A-Za-z0-9_-]+")
     psuedoclass = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]+")
     pseudoclass_selector = Drop(":") & psuedoclass
-    property = Word()
-    property_value = expression
-    property_decl = property & ~Space()[:] & Drop(":") & ~Space()[:] & \
-                    property_value
+    property = Word() >> lessipy.tree.property.Property
     attr_operator = Or("=", "~=", "|=")
-    attr_pridicate = property & (attr_operator & property_value)[:1]
+    attr_pridicate = property & (attr_operator & expression)[:1]
     attr_selector = "[" & attr_pridicate & "]"
     node_selector += type_selector[:1] & (id_selector | cls_selector |
                                         attr_selector | pseudoclass_selector)[:]
     child_selector = ~Space()[:] & (Literals(">", "+", " ")) & ~Space()[:] & \
                      node_selector & ~Space()[:]
-    selector = node_selector & ~Space()[:] & child_selector[:]
-    selectors = selector & ~Space()[:] & ("," & ~Space()[:] & selector)[:]
+    selector = node_selector & ~Space()[:] & child_selector[:] \
+                   > lessipy.tree.selector.Selector
+    selectors = selector & ~Space()[:] & (Drop(",") & ~Space()[:] & selector
+                )[:] > list
 
     ruleset = Delayed()
-    variable_decl = variable & ~Space()[:] & Drop(":") & ~Space()[:] & \
-                    expression
-    declaration = (variable_decl | property_decl) & ~Space()[:] & Drop(";")
-    rule = ruleset | declaration
+    declaration = (variable | property) & ~Space()[:] & Drop(":") & \
+                  ~Space()[:] & expression & ~Space()[:] & Drop(";") \
+                    > lessipy.tree.declaration.Declaration
+    rule = ruleset | declaration >> lessipy.tree.rule.Rule
+    rules = (~spaces[:] & rule & ~spaces[:])[:] > list
 
-    ruleset += ~Space()[:] & selectors & ~Space()[:] & Drop("{") & \
-               (~spaces[:] & rule & ~spaces[:])[:] & Drop("}")
+    ruleset += ~Space()[:] & selectors & ~Space()[:] & Drop("{") & rules \
+                   & Drop("}") > lessipy.tree.ruleset.Ruleset
 
     import_ = "@import" & ~Space()[:] & (url | string_literal) & Drop(";")
     primary = import_ | declaration | ruleset | comment

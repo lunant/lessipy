@@ -15,6 +15,8 @@ def numeric(cls):
 class Numeric(Operand):
     """A numerical."""
 
+    __slots__ = "val",
+
     def __init__(self, val):
         """Creates a number.
         
@@ -27,27 +29,33 @@ class Numeric(Operand):
             self.val = float(val)
         self.unit = None
 
+    @property
+    def result(self):
+        return self
+
     def __numeric__(self):
         """Returns numeric value"""
-        return numeric(self.val)
+        return numeric(self.value)
 
     def unify(self, other):
         """Unifies `Numeric` or `Dimension` unit."""
         try:
-            if not self.unit or not other.unit:
-                return self.unit if self.unit else other.unit
-            elif self.unit == other.unit:
-                return self.unit
+            if not self.result.unit or not other.result.unit:
+                return self.result.unit if self.result.unit else \
+                           other.result.unit
+            elif self.result.unit == other.result.unit:
+                return self.result.unit
             raise ArithmeticError("It is impossible to operate "  \
-                                 + repr(self.unit) + " and " + repr(other.unit))
+                                 + repr(self.result.unit) + " and " + \
+                                  repr(other.result.unit))
         except AttributeError:
             raise ArithmeticError("It is impossible to operate "  \
                                   + repr(self) + " and " + repr(other))
 
     def basic(self, other, __method__):
         """The basic operation method"""
-        lval = self.evaluate()
-        rval = other.evaluate()
+        lval = self.result
+        rval = other.result
         unit = self.unify(rval)
         result = getattr(float(numeric(lval)), __method__)(float(numeric(rval)))
         if unit:

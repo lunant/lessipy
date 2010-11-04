@@ -1,7 +1,9 @@
 import lessipy.tree.node
 
-class Property(lessipy.tree.node): 
+
+class Property(lessipy.tree.node.Node): 
 
     __slots__ = "value",
 
-    calss gt
+    def __init__(self, _property):
+        self.value = _property
