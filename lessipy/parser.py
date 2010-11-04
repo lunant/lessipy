@@ -13,6 +13,10 @@ import lessipy.tree.rule
 import lessipy.tree.variable
 import lessipy.tree.ruleset
 import lessipy.tree.selector
+import lessipy.tree.mixin
+import lessipy.tree.accessor
+import lessipy.tree._import
+
 
 with TraceVariables():
     spaces = Space(" \t\r\n")
@@ -52,24 +56,25 @@ with TraceVariables():
     operator = Or("+", "-", "*", "/")
     operation = expression & ~Space()[:] & operator & ~Space()[:] & \
                 expression > lessipy.tree.operation.Operation
-    variable = Regexp(r"@[A-Za-z_-][A-Za-z0-9_-]+") \
+    variable = Regexp(r"@[A-Za-z_-][A-Za-z0-9_-]*") \
                    >> lessipy.tree.variable.Variable
     expression += (term | operation | variable \
                   | ("(" & ~Space()[:] & expression & ~Space()[:] & ")")) & \
                   (Drop(spaces)[1:] & expression)[:] \
                       > lessipy.tree.expression.Expression
     node_selector = Delayed()
+
     universal_selector = Literal("*")
-    element_selector = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]+")
+    element_selector = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]*")
     type_selector = universal_selector | element_selector
-    id_selector = Regexp(r"#[A-Za-z_-][A-Za-z0-9_-]+")
-    cls_selector = Regexp(r"\.[A-Za-z_-][A-Za-z0-9_-]+")
-    psuedoclass = Regexp(r"[A-Za-z_-][A-Za-z0-9_-]+")
-    pseudoclass_selector = Drop(":") & psuedoclass
+    id_selector = Regexp(r"#[A-Za-z_-][A-Za-z0-9_-]*")
+    cls_selector = Regexp(r"\.[A-Za-z_-][A-Za-z0-9_-]*")
+    pseudoclass_selector = Regexp(r":[A-Za-z_-][A-Za-z0-9_-]*")
+
     property = Word() >> lessipy.tree.property.Property
     attr_operator = Or("=", "~=", "|=")
     attr_pridicate = property & (attr_operator & expression)[:1]
-    attr_selector = "[" & attr_pridicate & "]"
+    attr_selector = Drop("[") & attr_pridicate & Drop("]")
     node_selector += type_selector[:1] & (id_selector | cls_selector |
                                         attr_selector | pseudoclass_selector)[:]
     child_selector = ~Space()[:] & (Literals(">", "+", " ")) & ~Space()[:] & \
@@ -80,15 +85,20 @@ with TraceVariables():
                 )[:] > list
 
     ruleset = Delayed()
+    accessor = selector & Drop("[") & (variable | Drop("'") & property & \
+                    Drop("'")) & Drop("]") > lessipy.tree.accessor.Accessor
     declaration = (variable | property) & ~Space()[:] & Drop(":") & \
                   ~Space()[:] & expression & ~Space()[:] & Drop(";") \
                     > lessipy.tree.declaration.Declaration
-    rule = ruleset | declaration >> lessipy.tree.rule.Rule
+    mixin = Regexp(r"\.[A-Za-z_-][A-Za-z0-0_-]*") & Drop(";") \
+                 > lessipy.tree.mixin.Mixin
+    rule = ruleset | declaration | mixin >> lessipy.tree.rule.Rule
     rules = (~spaces[:] & rule & ~spaces[:])[:] > list
 
     ruleset += ~Space()[:] & selectors & ~Space()[:] & Drop("{") & rules \
                    & Drop("}") > lessipy.tree.ruleset.Ruleset
 
-    import_ = "@import" & ~Space()[:] & (url | string_literal) & Drop(";")
-    primary = import_ | declaration | ruleset | comment
+    import_ = Drop("@import") & ~Space()[:] & (url | string_literal) & \
+              Drop(";") > lessipy.tree._import.Import
+    primary = import_ | declaration | ruleset | comment > list
     stylesheet = ~spaces[:1] & (primary & ~spaces[:1])[:]

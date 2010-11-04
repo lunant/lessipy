@@ -8,4 +8,3 @@ class Ruleset(lessipy.tree.node.Node):
     def __init__(self, ruleset):
         self.name = ruleset[0] # selector 
         self.value = ruleset[1] # rules
-        print repr(ruleset)
