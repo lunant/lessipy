@@ -15,18 +15,18 @@ def numeric(cls):
 class Numeric(Operand):
     """A numerical."""
 
-    __slots__ = "val",
+    __slots__ = "value",
 
-    def __init__(self, val):
+    def __init__(self, value):
         """Creates a number.
         
         :param val: a numeric value. (e.g 1, 1.0, 0x22)
 
         """
         try:
-            self.val = int(val)
+            self.value = int(value)
         except ValueError:
-            self.val = float(val)
+            self.value = float(value)
         self.unit = None
 
     @property

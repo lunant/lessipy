@@ -15,7 +15,6 @@ class Operation(Operand):
         lval = operation[0]
         rval = operation[2]
         operator = operation[1]
-        print "new called"
         if operator == "+":
             return Addition([lval, rval])
         elif operator == "-":

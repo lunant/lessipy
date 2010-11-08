@@ -88,15 +88,16 @@ with TraceVariables():
     accessor = selector & Drop("[") & (variable | Drop("'") & property & \
                     Drop("'")) & Drop("]") > lessipy.tree.accessor.Accessor
     declaration = (variable | property) & ~Space()[:] & Drop(":") & \
-                  ~Space()[:] & expression & ~Space()[:] & Drop(";") \
+                  ~Space()[:] & (expression | accessor) & \
+                  ~Space()[:] & Drop(";") \
                     > lessipy.tree.declaration.Declaration
     mixin = Regexp(r"\.[A-Za-z_-][A-Za-z0-0_-]*") & Drop(";") \
                  > lessipy.tree.mixin.Mixin
     rule = ruleset | declaration | mixin >> lessipy.tree.rule.Rule
-    rules = (~spaces[:] & rule & ~spaces[:])[:] > list
+    rules = (rule & ~spaces[:])[:] > list
 
-    ruleset += ~Space()[:] & selectors & ~Space()[:] & Drop("{") & rules \
-                   & Drop("}") > lessipy.tree.ruleset.Ruleset
+    ruleset += ~Space()[:] & selectors & ~Space()[:] & Drop("{") & ~spaces[:] \
+                   & rules & Drop("}") > lessipy.tree.ruleset.Ruleset
 
     import_ = Drop("@import") & ~Space()[:] & (url | string_literal) & \
               Drop(";") > lessipy.tree._import.Import
