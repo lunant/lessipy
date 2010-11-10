@@ -55,7 +55,6 @@ class RGBColor(Color):
         :param args: a digit number(0-255) set.
         
         """
-        print repr(colorset)
         for color in range(0, 2):
             if not(0 <= int(colorset[color]) <= 255):
                 raise ValueError("colorset elements must be in valid range(0 "
@@ -66,10 +65,6 @@ class RGBColor(Color):
 
     def to_hex(self):
         return HexColor(to_hexcode(self))
-
-    def to_css(self):
-        return "rgb({r}, {g}, {b})".format(r=self.red, g=self.green,
-                                           b=self.blue)
 
 
 class RGBAColor(RGBColor):
@@ -87,10 +82,6 @@ class RGBAColor(RGBColor):
                              "passed " + repr(int(colorset[3])))
         self.alpha = float(colorset[3])
 
-    def to_css(self):
-        return "rgb({r}, {g}, {b}, {a})".format(r=self.red, g=self.green,
-                                                b=self.blue, a=self.alpha)
-    
     def to_rgb(self):
         return RGBColor((self.red * self.alpha, self.green * self.alpha,
                          self.blue * self.alpha))
@@ -110,9 +101,6 @@ class HexColor(Color):
         self.red = rgb[0]
         self.green = rgb[1]
         self.blue = rgb[2]
-
-    def to_css(self):
-        return to_hexcode(self)
 
     def to_rgb(self):
         return RGBColor(self.red, self.green, self.blue)

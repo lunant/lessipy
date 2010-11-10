@@ -1,0 +1,79 @@
+# vim: ft=python:
+>>> from lessipy import *
+>>> from lessipy.tree import *
+
+>>> numeric.Numeric(1).to_css()
+'1'
+
+>>> dimension.Dimension([1, "px"]).to_css()
+'1px'
+
+>>> keyword.Keyword("black").to_css()
+'black'
+
+>>> comment.Comment("/* Comment */").to_css()
+'/* Comment */'
+
+>>> property.Property("text-align").to_css()
+'text-align'
+
+>>> color.RGBColor([1,2,3]).to_css()
+'rgb(1, 2, 3)'
+
+>>> color.RGBAColor([1,2,3,0.5]).to_css()
+'rgba(1, 2, 3, 0.5)'
+
+>>> color.RGBColor([1,2,3]).to_hex().to_css()
+'#010203'
+
+>>> variable.Variable("@var").to_css()
+'@var'
+
+>>> string.String("'string'").to_css()
+'\'string\''
+
+>>> selector.Selector("#id").to_css()
+'#id'
+
+>>> expression.Expression([dimension.Dimension([1, "px"]),
+...     keyword.Keyword("solid"), keyword.Keyword("black")]).to_css()
+'1px solid black'
+
+>>> operator.Addition(dimension.Dimension([1, "px"]),
+...     numeric.Numeric(1)).to_css()
+'2px'
+
+>>> declaration.Declaration([property.Property("text-align"),
+...     expression.Expression([keyword.Keyword("left"))]]).to_css()
+'text-align: left;'
+
+>>> declaration.Declaration([variable.Variable("@width"),
+...     expression.Expression([dimension.Dimension([100, "px"])])]).to_css()
+''
+
+>>> ruleset.Ruleset([selector.Selector("#id.class"), [ 
+...     declaration.Declaration([property.Property("text-align"),
+...         expression.Expression([keyword.Keyword("left"))]
+...     ]),
+...     declaration.Declaration([variable.Variable("@size"),
+...         expression.Expression([dimension.Dimension([1, "px"])])
+...     ]),
+...     ruleset.Ruleset([selector.Selector("[type=checkbox]"), [
+...         declaration.Declaration([property.Property("font-size"),
+...             expression.Expression([operator.Addition([
+...                 variable.Variable("@size"),
+...                 numeric.Numeric("1"),
+...             ])])
+...         ])
+...     ])
+... ]])
+'#id.class {
+    text-align:left;
+}
+#id.class [type=checkbox] {
+    font-size: 2px;
+}'
+
+>>> ruleset.UniversalRuleset([
+... 
+... ])

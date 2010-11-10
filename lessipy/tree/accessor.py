@@ -8,4 +8,3 @@ class Accessor(lessipy.tree.node.Node):
     def __init__(self, accessor):
         self.name = accessor[0] # selector
         self.value = accessor[1] # identifier(property, variable)
-        print repr(self.value)
